@@ -31,4 +31,9 @@ export class VehiculoController {
   remove(@Param('id') id: string) {
     return this.vehiculoService.remove(+id);
   }
+
+  @Post('bulk')
+  createMany(@Body() createVehiculoDtos: CreateVehiculoDto[]) {
+    return this.vehiculoService.createMany(createVehiculoDtos);
+  }
 }

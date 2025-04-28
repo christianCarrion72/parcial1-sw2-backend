@@ -29,5 +29,5 @@ export class Evaluacion {
   archivos: Archivo[];
 
   @DeleteDateColumn()
-    deletedAt: Date;
+  deletedAt: Date;
 }

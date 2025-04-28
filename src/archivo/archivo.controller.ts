@@ -14,7 +14,15 @@ export class ArchivoController {
 
   @Post()
   create(@Body() createArchivoDto: CreateArchivoDto) {
-    return this.archivoService.create(createArchivoDto);
+    try {
+      const archivo = this.archivoService.create(createArchivoDto);
+      return {
+        message: 'Archivo creado correctamente',
+        archivo
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get()
@@ -53,15 +61,20 @@ export class ArchivoController {
   async UploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body('fileName') fileName: string,
+    @Body('vehiculoId') vehiculoId: string,
     @Res() res: Response) {
     try{
       const response = await this.archivoService.uploadFile({
         file,
-        fileName: fileName || file.originalname
+        fileName: fileName || file.originalname,
+        vehiculoId: parseInt(vehiculoId)
       });
       res.status(HttpStatus.OK).send(response)
     }catch(error){
-      throw error;
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: 'Error al subir el archivo',
+        error: error.message
+      });
     }
   }
 }

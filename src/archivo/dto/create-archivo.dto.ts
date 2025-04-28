@@ -4,7 +4,7 @@ export class CreateArchivoDto {
     @IsUrl()
     url: string;
 
-    @IsIn(['imagen','audio'])
+    @IsIn(['I','A'])
     tipo: string;
 
     @IsInt()

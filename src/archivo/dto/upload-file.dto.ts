@@ -1,4 +1,4 @@
-import { IsBase64, IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class UploadFileDto{
     @IsNotEmpty()
@@ -6,4 +6,8 @@ export class UploadFileDto{
     readonly fileName: string;
 
     file: Express.Multer.File;
+
+    @IsNotEmpty()
+    @IsNumber()
+    vehiculoId: number;
 }

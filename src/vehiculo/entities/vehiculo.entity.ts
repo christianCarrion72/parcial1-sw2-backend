@@ -1,4 +1,4 @@
-import { Evaluacion } from 'src/evaluacion/entities/evaluacion.entity';
+import { Evaluacion } from '../../evaluacion/entities/evaluacion.entity';
 import { Column, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

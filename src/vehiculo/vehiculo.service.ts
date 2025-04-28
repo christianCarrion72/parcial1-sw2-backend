@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { CreateVehiculoDto } from './dto/create-vehiculo.dto';
 import { UpdateVehiculoDto } from './dto/update-vehiculo.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Vehiculo } from './entities/vehiculo.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class VehiculoService {
-  create(createVehiculoDto: CreateVehiculoDto) {
-    return 'This action adds a new vehiculo';
+  constructor(
+    @InjectRepository(Vehiculo)
+    private readonly vehiculoRepository: Repository<Vehiculo>,
+  ){}
+
+  async create(createVehiculoDto: CreateVehiculoDto) {
+    const vehiculo = this.vehiculoRepository.create(createVehiculoDto)
+    return await this.vehiculoRepository.save(vehiculo);
   }
 
-  findAll() {
-    return `This action returns all vehiculo`;
+  async findAll() {
+    return await this.vehiculoRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} vehiculo`;
+  async findOne(id: number) {
+    return await this.vehiculoRepository.findOneBy({id});
   }
 
-  update(id: number, updateVehiculoDto: UpdateVehiculoDto) {
+  async update(id: number, updateVehiculoDto: UpdateVehiculoDto) {
     return `This action updates a #${id} vehiculo`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} vehiculo`;
+  async remove(id: number) {
+    return await this.vehiculoRepository.softDelete(id);
+  }
+
+  async createMany(createVehiculoDto: CreateVehiculoDto[]){
+    const vehiculos = this.vehiculoRepository.create(createVehiculoDto);
+    return await this.vehiculoRepository.save(vehiculos);
   }
 }
