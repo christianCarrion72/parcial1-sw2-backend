@@ -6,6 +6,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import axios from 'axios';
 import { UploadFileDto } from 'src/archivo/dto/upload-file.dto';
+import * as FormData from 'form-data';
 
 //Interfaz para respuesta Ai Query
 export interface AiQuery{
@@ -50,6 +51,9 @@ export class S3Provider {
         //Ai Query
         const respuestaAiQuery = await this.aiQuery(responseS3.Location);
         //console.log('Respuesta AI Query:', respuestaAiQuery);
+
+        //Ai Query - ahora pasando el archivo real
+        //const respuestaAiQuery2 = await this.aiQuery2(file);
         // Crear archivo
         const archivo = await this.registerFile(responseS3.Location, evaluacion.id, file.mimetype);
       
@@ -159,6 +163,45 @@ export class S3Provider {
     }catch (error) {
       console.error('Error al crear daño físico:', error);
       return null;
+    }
+  }
+
+  private async aiQuery2(file: Express.Multer.File, intentos = 3):Promise<AiQuery>{
+    try {
+      const urlApiExterna = process.env.URL_APII_EXTERNA || 'apiExterna.com';
+      
+      // Crear un objeto FormData
+      const formData = new FormData();
+      
+      // Añadir el archivo al FormData
+      formData.append('archivo', file.buffer, {
+        filename: file.originalname,
+        contentType: file.mimetype
+      });
+      
+      // Enviar el FormData con el archivo
+      const respuesta = await axios.post(urlApiExterna, formData, {
+        timeout: 60000, // 60 segundos de timeout
+        headers: {
+          ...formData.getHeaders() // Esto establece el Content-Type correcto con boundary
+        }
+      });
+      
+      return respuesta.data;
+    } catch (error) {
+      console.error(`Error al enviar el archivo a Api externa (intentos restantes: ${intentos-1}):`, error);
+      
+      // Si aún quedan intentos, reintenta la operación
+      if (intentos > 1) {
+        console.log(`Reintentando... (${intentos-1} intentos restantes)`);
+        return this.aiQuery2(file, intentos - 1);
+      }
+      
+      // Si es el último intento, lanza el error
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('La API externa tardó demasiado en responder');
+      }
+      throw new Error(`Error al enviar archivo a API externa: ${error.message}`);
     }
   }
 }

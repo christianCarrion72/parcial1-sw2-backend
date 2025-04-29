@@ -18,7 +18,11 @@ export class VehiculoService {
   }
 
   async findAll() {
-    return await this.vehiculoRepository.find();
+    return await this.vehiculoRepository.find({
+      order:{
+        marca: 'ASC'
+      }
+    });
   }
 
   async findOne(id: number) {
