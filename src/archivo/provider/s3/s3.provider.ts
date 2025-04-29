@@ -1,10 +1,17 @@
 import { ArchivoService } from '@/archivo/archivo.service';
+import { DanoFisicoService } from '@/dano-fisico/dano-fisico.service';
 import { CreateEvaluacionDto } from '@/evaluacion/dto/create-evaluacion.dto';
 import { EvaluacionService } from '@/evaluacion/evaluacion.service';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
+import axios from 'axios';
 import { UploadFileDto } from 'src/archivo/dto/upload-file.dto';
 
+//Interfaz para respuesta Ai Query
+export interface AiQuery{
+  nivel: string;
+  detecciones: number;
+}
 
 @Injectable()
 export class S3Provider {
@@ -14,6 +21,7 @@ export class S3Provider {
     private readonly evaluacionService: EvaluacionService,
     @Inject(forwardRef(() => ArchivoService))
     private readonly archivoService: ArchivoService,
+    private readonly danoFisicoService: DanoFisicoService,
   ) {
     AWS.config.update({
         accessKeyId: process.env.S3_ACCESS_KEY,
@@ -35,17 +43,31 @@ export class S3Provider {
     try{
         // Subir el archivo a S3
         const responseS3 = await this.uploadToS3(bucket, fileName, file);
-        //console.log(responseS3);
+    
         // Crear evaluacion 
         const evaluacion = await this.createEvaluacion(vehiculoId,file.mimetype);
-        //console.log(evaluacion);
+        
+        //Ai Query
+        const respuestaAiQuery = await this.aiQuery(responseS3.Location);
+        //console.log('Respuesta AI Query:', respuestaAiQuery);
         // Crear archivo
         const archivo = await this.registerFile(responseS3.Location, evaluacion.id, file.mimetype);
-        //console.log(archivo);
+      
+        // Crear daño físico si es una imagen
+        let danoFisico;
+        if (file.mimetype.startsWith('image')) {
+          danoFisico = await this.createDanoFisico(evaluacion.id, respuestaAiQuery);
+        }
+
+        // Obtener la evaluación completa con todas sus relaciones
+        const evaluacionCompleta = await this.evaluacionService.findOne(evaluacion.id);
+        
         return {
           responseS3,
-          evaluacion,
-          archivo
+          respuestaAiQuery,
+          evaluacion: evaluacionCompleta,
+          archivo,
+          danoFisico
         }; 
     }catch (error) {
         throw error;
@@ -65,12 +87,14 @@ export class S3Provider {
   }
 
   private async createEvaluacion(vehiculoId: number, mimetype: string){
+    const ahora = new Date();
+    const fechaHora = `${ahora.toISOString().split('T')[0]} ${ahora.getHours()}:${ahora.getMinutes()}:${ahora.getSeconds()}`;
     const evaluacionDto: CreateEvaluacionDto = {
-      fecha: new Date().toISOString().split('T')[0], // fecha actual en formato ISO "YYYY-MM-DD"
+      fecha: fechaHora, // fecha actual en formato ISO "YYYY-MM-DD"
       tipo: mimetype.startsWith('image') ? 'F' : 'S', // F = Físico, S = Sonido
       vehiculoId
     }
-    console.log(evaluacionDto);
+  
     return await this.evaluacionService.create(evaluacionDto);
   }
 
@@ -82,5 +106,59 @@ export class S3Provider {
     };
     
     return await this.archivoService.create(archivoDto);
+  }
+
+  private async aiQuery(url: string, intentos = 3):Promise<AiQuery>{
+    try {
+      const urlApiExterna = process.env.URL_API_EXTERNA || 'apiExterna.com';
+      //console.log('URL API Externa:', urlApiExterna);
+      //enviar solicitud POST
+      const respuesta = await axios.post(urlApiExterna, { archivo: url }, {
+        timeout: 60000 // 30 segundos de timeout
+      });
+      return respuesta.data;
+    } catch (error) {
+      console.error(`Error al enviar el archivo a Api externa (intentos restantes: ${intentos-1}):`, error);
+      
+      // Si aún quedan intentos, reintenta la operación
+      if (intentos > 1) {
+        console.log(`Reintentando... (${intentos-1} intentos restantes)`);
+        return this.aiQuery(url, intentos - 1);
+      }
+      
+      // Si es el último intento, lanza el error
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('La API externa tardó demasiado en responder');
+      }
+      throw new Error(`Error al enviar archivo a API externa: ${error.message}`);
+    }
+  }
+
+  private async createDanoFisico(evaluacionId: number, respuestaAiQuery: AiQuery){
+      try {
+        // Determinar el tipo de daño basado en el nivel
+        let tipo: string;
+        switch(respuestaAiQuery.nivel) {
+          case 'leve':
+            tipo = 'rayon';
+            break;
+          case 'moderado':
+            tipo = 'grieta';
+            break;
+          case 'severo':
+          default:
+            tipo = 'abolladura';
+            break;
+        } 
+      const danoFisicoDto = {
+        tipo,
+        gravedad: respuestaAiQuery.nivel,
+        evaluacionId
+      }; 
+      return await this.danoFisicoService.create(danoFisicoDto)
+    }catch (error) {
+      console.error('Error al crear daño físico:', error);
+      return null;
+    }
   }
 }

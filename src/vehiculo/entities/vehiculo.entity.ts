@@ -1,5 +1,5 @@
 import { Evaluacion } from '../../evaluacion/entities/evaluacion.entity';
-import { Column, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Vehiculo {
@@ -15,7 +15,7 @@ export class Vehiculo {
   @Column()
   año: number;
 
-  @OneToOne(() => Evaluacion, (evaluacion) => evaluacion.vehiculo)
+  @OneToMany(() => Evaluacion, (evaluacion) => evaluacion.vehiculo)
   evaluacion: Evaluacion;
 
   @DeleteDateColumn()

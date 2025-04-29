@@ -45,12 +45,14 @@ export class EvaluacionService {
 
   async findOne(id: number) {
     const evaluacion = await this.evaluationRepository.findOne({
-      where: {id},
-      relations: ['vehiculo', 'archivos']
-    })
-    if(!evaluacion){
-      throw new NotFoundException(`Evaluacion ${id} no encontrada`);
+      where: { id },
+      relations: ['vehiculo', 'danosFisicos', 'fallasMecanicas', 'archivos']
+    });
+    
+    if (!evaluacion) {
+      throw new NotFoundException(`Evaluación con ID ${id} no encontrada`);
     }
+    
     return evaluacion;
   }
 

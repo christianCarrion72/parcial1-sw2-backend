@@ -2,7 +2,7 @@ import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/com
 import { CreateArchivoDto } from './dto/create-archivo.dto';
 import { UpdateArchivoDto } from './dto/update-archivo.dto';
 import { UploadFileDto } from './dto/upload-file.dto';
-import { S3Provider } from './provider/s3/s3.provider';
+import { S3Provider,AiQuery } from './provider/s3/s3.provider';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Archivo } from './entities/archivo.entity';
 import { Repository } from 'typeorm';

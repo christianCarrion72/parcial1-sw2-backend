@@ -2,7 +2,7 @@ import { Archivo } from 'src/archivo/entities/archivo.entity';
 import { DanoFisico } from 'src/dano-fisico/entities/dano-fisico.entity';
 import { FallaMecanica } from 'src/falla-mecanica/entities/falla-mecanica.entity';
 import { Vehiculo } from 'src/vehiculo/entities/vehiculo.entity';
-import { Column, DeleteDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Evaluacion {
@@ -15,7 +15,7 @@ export class Evaluacion {
   @Column({ type: 'char' }) // Físico o Sonido
   tipo: string;
 
-  @OneToOne(() => Vehiculo, (vehiculo) => vehiculo.evaluacion)
+  @ManyToOne(() => Vehiculo, (vehiculo) => vehiculo.evaluacion)
   @JoinColumn()
   vehiculo: Vehiculo;
 

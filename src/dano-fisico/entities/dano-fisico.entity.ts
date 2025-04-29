@@ -7,10 +7,10 @@ export class DanoFisico {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'char' })
+  @Column({ type: 'varchar', length: 20 })
   tipo: string; // abolladura, rayón, grieta
 
-  @Column()
+  @Column({ type: 'varchar', length: 20})
   gravedad: string; // leve, moderado, severo
 
   @ManyToOne(() => Evaluacion, (evaluacion) => evaluacion.danosFisicos)

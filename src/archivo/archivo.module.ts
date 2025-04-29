@@ -7,11 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Archivo } from './entities/archivo.entity';
 import { EvaluacionService } from '@/evaluacion/evaluacion.service';
 import { Evaluacion } from '@/evaluacion/entities/evaluacion.entity';
+import { DanoFisicoModule } from '@/dano-fisico/dano-fisico.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Archivo, Evaluacion]),
-    EvaluacionModule
+    EvaluacionModule,
+    DanoFisicoModule,
   ],
   controllers: [ArchivoController],
   providers: [ArchivoService, S3Provider],
