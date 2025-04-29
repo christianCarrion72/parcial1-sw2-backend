@@ -9,9 +9,14 @@ import { UploadFileDto } from 'src/archivo/dto/upload-file.dto';
 import * as FormData from 'form-data';
 
 //Interfaz para respuesta Ai Query
-export interface AiQuery{
+export interface AiQueryResponse {
+  resultados: AiQuery[];
+}
+
+export interface AiQuery {
   nivel: string;
   detecciones: number;
+  archivo?: string;
 }
 
 @Injectable()
@@ -49,11 +54,11 @@ export class S3Provider {
         const evaluacion = await this.createEvaluacion(vehiculoId,file.mimetype);
         
         //Ai Query
-        const respuestaAiQuery = await this.aiQuery(responseS3.Location);
+        //const respuestaAiQuery2 = await this.aiQuery(responseS3.Location);
         //console.log('Respuesta AI Query:', respuestaAiQuery);
 
         //Ai Query - ahora pasando el archivo real
-        //const respuestaAiQuery2 = await this.aiQuery2(file);
+        const respuestaAiQuery = await this.aiQuery2(file);
         // Crear archivo
         const archivo = await this.registerFile(responseS3.Location, evaluacion.id, file.mimetype);
       
@@ -120,7 +125,16 @@ export class S3Provider {
       const respuesta = await axios.post(urlApiExterna, { archivo: url }, {
         timeout: 60000 // 30 segundos de timeout
       });
-      return respuesta.data;
+      // Extraer el primer resultado del array resultados
+    const apiResponse = respuesta.data as AiQueryResponse;
+    if (apiResponse.resultados && apiResponse.resultados.length > 0) {
+      return apiResponse.resultados[0];
+    }  
+    // Si no hay resultados, devolver un valor predeterminado
+    return {
+      nivel: 'sin daño',
+      detecciones: 0
+    };
     } catch (error) {
       console.error(`Error al enviar el archivo a Api externa (intentos restantes: ${intentos-1}):`, error);
       
@@ -174,7 +188,7 @@ export class S3Provider {
       const formData = new FormData();
       
       // Añadir el archivo al FormData
-      formData.append('archivo', file.buffer, {
+      formData.append('files', file.buffer, {
         filename: file.originalname,
         contentType: file.mimetype
       });
@@ -186,8 +200,17 @@ export class S3Provider {
           ...formData.getHeaders() // Esto establece el Content-Type correcto con boundary
         }
       });
-      
-      return respuesta.data;
+      // Extraer el primer resultado del array resultados
+    const apiResponse = respuesta.data as AiQueryResponse;
+    if (apiResponse.resultados && apiResponse.resultados.length > 0) {
+      return apiResponse.resultados[0];
+    }
+    
+    // Si no hay resultados, devolver un valor predeterminado
+    return {
+      nivel: 'sin daño',
+      detecciones: 0
+    };
     } catch (error) {
       console.error(`Error al enviar el archivo a Api externa (intentos restantes: ${intentos-1}):`, error);
       
