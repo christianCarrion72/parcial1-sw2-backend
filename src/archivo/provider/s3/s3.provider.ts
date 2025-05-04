@@ -7,6 +7,7 @@ import * as AWS from 'aws-sdk';
 import axios from 'axios';
 import { UploadFileDto } from 'src/archivo/dto/upload-file.dto';
 import * as FormData from 'form-data';
+import { HistorialService } from '@/historial/historial.service';
 
 //Interfaz para respuesta Ai Query
 export interface AiQueryResponse {
@@ -28,6 +29,7 @@ export class S3Provider {
     @Inject(forwardRef(() => ArchivoService))
     private readonly archivoService: ArchivoService,
     private readonly danoFisicoService: DanoFisicoService,
+    private readonly historialService: HistorialService,
   ) {
     AWS.config.update({
         accessKeyId: process.env.S3_ACCESS_KEY,
@@ -39,6 +41,7 @@ export class S3Provider {
 
   async uploadFile(body: UploadFileDto) {
     const { file, fileName, vehiculoId } = body;
+    const placa = body.placa.toUpperCase();
     const bucket = process.env.S3_BUCKET;
 
     if (!bucket) {
@@ -47,11 +50,27 @@ export class S3Provider {
       );
     }
     try{
+        let historial;
+        try {
+          // Existe historial?
+          const historiales = await this.historialService.findAll();
+          historial = historiales.find(h => h.placa === placa);
+          // Si no existe crear uno
+          if (!historial) {
+            historial = await this.historialService.create({ placa });
+            console.log(`Nuevo historial creado para placa: ${placa}`);
+          }else{
+            console.log(`Historial existente encontrado para placa: ${placa}`);
+          }
+        } catch (error) {
+          console.error('Error al buscar/crear historial:', error);
+          throw new Error(`Error al procesar historial: ${error.message}`);
+        }
         // Subir el archivo a S3
         const responseS3 = await this.uploadToS3(bucket, fileName, file);
-    
+        
         // Crear evaluacion 
-        const evaluacion = await this.createEvaluacion(vehiculoId,file.mimetype);
+        const evaluacion = await this.createEvaluacion(vehiculoId,file.mimetype, historial.id);
         
         //Ai Query
         //const respuestaAiQuery2 = await this.aiQuery(responseS3.Location);
@@ -76,7 +95,8 @@ export class S3Provider {
           respuestaAiQuery,
           evaluacion: evaluacionCompleta,
           archivo,
-          danoFisico
+          danoFisico,
+          historial
         }; 
     }catch (error) {
         throw error;
@@ -95,13 +115,14 @@ export class S3Provider {
     return await this.s3.upload(params).promise();
   }
 
-  private async createEvaluacion(vehiculoId: number, mimetype: string){
+  private async createEvaluacion(vehiculoId: number, mimetype: string, historialId?: number){
     const ahora = new Date();
     const fechaHora = `${ahora.toISOString().split('T')[0]} ${ahora.getHours()}:${ahora.getMinutes()}:${ahora.getSeconds()}`;
     const evaluacionDto: CreateEvaluacionDto = {
       fecha: fechaHora, // fecha actual en formato ISO "YYYY-MM-DD"
       tipo: mimetype.startsWith('image') ? 'F' : 'S', // F = Físico, S = Sonido
-      vehiculoId
+      vehiculoId,
+      historialId
     }
   
     return await this.evaluacionService.create(evaluacionDto);

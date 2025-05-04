@@ -7,7 +7,7 @@ import { UpdateFallaMecanicaDto } from './dto/update-falla-mecanica.dto';
 export class FallaMecanicaController {
   constructor(private readonly fallaMecanicaService: FallaMecanicaService) {}
 
-  @Post()
+  /*@Post()
   create(@Body() createFallaMecanicaDto: CreateFallaMecanicaDto) {
     return this.fallaMecanicaService.create(createFallaMecanicaDto);
   }
@@ -30,5 +30,5 @@ export class FallaMecanicaController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.fallaMecanicaService.remove(+id);
-  }
+  }*/
 }

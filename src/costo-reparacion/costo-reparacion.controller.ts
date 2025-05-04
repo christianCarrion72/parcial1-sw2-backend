@@ -7,7 +7,7 @@ import { UpdateCostoReparacionDto } from './dto/update-costo-reparacion.dto';
 export class CostoReparacionController {
   constructor(private readonly costoReparacionService: CostoReparacionService) {}
 
-  @Post()
+  /*@Post()
   create(@Body() createCostoReparacionDto: CreateCostoReparacionDto) {
     return this.costoReparacionService.create(createCostoReparacionDto);
   }
@@ -30,5 +30,5 @@ export class CostoReparacionController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.costoReparacionService.remove(+id);
-  }
+  }*/
 }

@@ -7,7 +7,7 @@ import { UpdateEvaluacionDto } from './dto/update-evaluacion.dto';
 export class EvaluacionController {
   constructor(private readonly evaluacionService: EvaluacionService) {}
 
-  @Post()
+  /*@Post()
   create(@Body() createEvaluacionDto: CreateEvaluacionDto) {
     return this.evaluacionService.create(createEvaluacionDto);
   }
@@ -30,5 +30,5 @@ export class EvaluacionController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.evaluacionService.remove(id);
-  }
+  }*/
 }

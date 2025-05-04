@@ -1,4 +1,4 @@
-import { IsDateString, IsIn, IsInt } from "class-validator";
+import { IsDateString, IsIn, IsInt, IsOptional } from "class-validator";
 
 export class CreateEvaluacionDto {
   @IsDateString()
@@ -9,4 +9,8 @@ export class CreateEvaluacionDto {
 
   @IsInt()
   vehiculoId: number; // referencia al vehículo
+
+  @IsInt()
+  @IsOptional()
+  historialId?: number; // referencia al historial (opcional)
 }

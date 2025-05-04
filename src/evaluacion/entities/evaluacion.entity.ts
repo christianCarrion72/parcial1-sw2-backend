@@ -1,3 +1,4 @@
+import { Historial } from '@/historial/entities/historial.entity';
 import { Archivo } from 'src/archivo/entities/archivo.entity';
 import { DanoFisico } from 'src/dano-fisico/entities/dano-fisico.entity';
 import { FallaMecanica } from 'src/falla-mecanica/entities/falla-mecanica.entity';
@@ -18,6 +19,10 @@ export class Evaluacion {
   @ManyToOne(() => Vehiculo, (vehiculo) => vehiculo.evaluacion)
   @JoinColumn()
   vehiculo: Vehiculo;
+
+  @ManyToOne(() => Historial, (historial) => historial.evaluaciones)
+  @JoinColumn()
+  historial: Historial;
 
   @OneToMany(() => DanoFisico, (danoFisico) => danoFisico.evaluacion)
   danosFisicos: DanoFisico[];

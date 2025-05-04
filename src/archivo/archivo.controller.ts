@@ -11,7 +11,7 @@ export class ArchivoController {
   constructor(
     private readonly archivoService: ArchivoService,
   ) {}
-
+  /*
   @Post()
   create(@Body() createArchivoDto: CreateArchivoDto) {
     try {
@@ -43,7 +43,7 @@ export class ArchivoController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.archivoService.remove(+id);
-  }
+  }*/
 
   @Post('upload-file')
   @UseInterceptors(FileInterceptor('file', {
@@ -62,12 +62,14 @@ export class ArchivoController {
     @UploadedFile() file: Express.Multer.File,
     @Body('fileName') fileName: string,
     @Body('vehiculoId') vehiculoId: string,
+    @Body('placa') placa: string,
     @Res() res: Response) {
     try{
       const response = await this.archivoService.uploadFile({
         file,
         fileName: fileName || file.originalname,
-        vehiculoId: parseInt(vehiculoId)
+        vehiculoId: parseInt(vehiculoId),
+        placa: placa || 'SIN PLACA'
       });
       res.status(HttpStatus.OK).send(response)
     }catch(error){

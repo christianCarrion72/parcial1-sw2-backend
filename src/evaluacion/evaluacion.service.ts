@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Evaluacion } from './entities/evaluacion.entity';
 import { Repository } from 'typeorm';
 import { Vehiculo } from '@/vehiculo/entities/vehiculo.entity';
+import { Historial } from '@/historial/entities/historial.entity';
 
 @Injectable()
 export class EvaluacionService {
@@ -13,7 +14,9 @@ export class EvaluacionService {
     @InjectRepository(Evaluacion)
     private readonly evaluationRepository: Repository<Evaluacion>,
     @InjectRepository(Vehiculo)
-    private readonly vehiculoRepository: Repository<Vehiculo>
+    private readonly vehiculoRepository: Repository<Vehiculo>,
+    @InjectRepository(Historial)
+    private readonly historialRepository: Repository<Historial>
   ) {}
 
   async create(createEvaluacionDto: CreateEvaluacionDto) {
@@ -30,6 +33,17 @@ export class EvaluacionService {
         tipo: createEvaluacionDto.tipo,
         vehiculo: vehiculo
       });
+
+      if (createEvaluacionDto.historialId) {
+        const historial = await this.historialRepository.findOne({
+          where: { id: createEvaluacionDto.historialId}
+        });
+
+        if (!historial){
+          throw new NotFoundException('Historial no encontrado');
+        }
+        evaluacion.historial = historial;
+      }
       return await this.evaluationRepository.save(evaluacion);
     } catch (error) {
       throw new Error(`Error al crear evaluación: ${error.message}`);
@@ -39,14 +53,14 @@ export class EvaluacionService {
 
   async findAll() {
     return await this.evaluationRepository.find({
-      relations: ['vehiculo', 'archivos']
+      relations: ['vehiculo', 'archivos', 'historial']
     });
   }
 
   async findOne(id: number) {
     const evaluacion = await this.evaluationRepository.findOne({
       where: { id },
-      relations: ['vehiculo', 'danosFisicos', 'fallasMecanicas', 'archivos']
+      relations: ['vehiculo', 'danosFisicos', 'fallasMecanicas', 'archivos', 'historial']
     });
     
     if (!evaluacion) {

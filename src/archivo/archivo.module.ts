@@ -8,12 +8,14 @@ import { Archivo } from './entities/archivo.entity';
 import { EvaluacionService } from '@/evaluacion/evaluacion.service';
 import { Evaluacion } from '@/evaluacion/entities/evaluacion.entity';
 import { DanoFisicoModule } from '@/dano-fisico/dano-fisico.module';
+import { HistorialModule } from '@/historial/historial.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Archivo, Evaluacion]),
     EvaluacionModule,
     DanoFisicoModule,
+    HistorialModule,
   ],
   controllers: [ArchivoController],
   providers: [ArchivoService, S3Provider],

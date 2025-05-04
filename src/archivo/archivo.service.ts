@@ -57,6 +57,9 @@ export class ArchivoService {
   }
 
   uploadFile(body: UploadFileDto){
+    if (!body.placa) {
+      throw new BadRequestException('El número de placa es requerido');
+    }
     return this.s3Provider.uploadFile(body);
   }
 }

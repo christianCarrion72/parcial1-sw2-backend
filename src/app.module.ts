@@ -15,6 +15,8 @@ import { DanoFisico } from './dano-fisico/entities/dano-fisico.entity';
 import { CostoReparacion } from './costo-reparacion/entities/costo-reparacion.entity';
 import { FallaMecanica } from './falla-mecanica/entities/falla-mecanica.entity';
 import { Archivo } from './archivo/entities/archivo.entity';
+import { HistorialModule } from './historial/historial.module';
+import { Historial } from './historial/entities/historial.entity';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { Archivo } from './archivo/entities/archivo.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [Vehiculo,Evaluacion,DanoFisico,CostoReparacion,FallaMecanica,Archivo],
+      entities: [Vehiculo,Evaluacion,DanoFisico,CostoReparacion,FallaMecanica,Archivo, Historial],
       synchronize: true,
     }),
     VehiculoModule,
@@ -37,6 +39,7 @@ import { Archivo } from './archivo/entities/archivo.entity';
     FallaMecanicaModule,
     ArchivoModule,
     CostoReparacionModule,
+    HistorialModule,
   ],
   controllers: [AppController],
   providers: [AppService],

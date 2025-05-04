@@ -1,4 +1,6 @@
+import { Transform } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+
 
 export class UploadFileDto{
     @IsNotEmpty()
@@ -10,4 +12,9 @@ export class UploadFileDto{
     @IsNotEmpty()
     @IsNumber()
     vehiculoId: number;
+
+    @Transform(({value}) => value.trim())
+    @IsNotEmpty()
+    @IsString()
+    placa: string;
 }

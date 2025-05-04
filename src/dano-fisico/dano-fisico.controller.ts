@@ -7,7 +7,7 @@ import { UpdateDanoFisicoDto } from './dto/update-dano-fisico.dto';
 export class DanoFisicoController {
   constructor(private readonly danoFisicoService: DanoFisicoService) {}
 
-  @Post()
+  /*@Post()
   create(@Body() createDanoFisicoDto: CreateDanoFisicoDto) {
     return this.danoFisicoService.create(createDanoFisicoDto);
   }
@@ -30,5 +30,5 @@ export class DanoFisicoController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.danoFisicoService.remove(+id);
-  }
+  }*/
 }
