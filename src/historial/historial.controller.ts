@@ -10,12 +10,12 @@ export class HistorialController {
   /*@Post()
   create(@Body() createHistorialDto: CreateHistorialDto) {
     return this.historialService.create(createHistorialDto);
-  }
+  }*/
 
   @Get()
   findAll() {
     return this.historialService.findAll();
-  }*/
+  }
 
   @Get(':id')
   findOne(@Param('id') id: number) {
