@@ -13,10 +13,14 @@ async function bootstrap() {
     })
   );
   app.enableCors({
-    origin: true, 
+    origin: [
+      'http://localhost:4200',
+      'https://softwaretecnico.netlify.app',
+      'https://www.softwaretecnico.netlify.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
-    credentials: false,
-    allwedHeaders: ['Content-Type', 'Accept'],
+    credentials: true,
+    allwedHeaders: ['Content-Type', 'Accept', 'Authorization'],
   });
   const port = process.env.PORT || 3000;
   console.log(`La aplicación está escuchando en el puerto: ${port}`);
