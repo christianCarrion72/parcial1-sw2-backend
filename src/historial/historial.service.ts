@@ -39,6 +39,25 @@ export class HistorialService {
     return historial;
   }
 
+  async findByPlaca(placa: string) {
+    placa = placa.toUpperCase();
+    const historial = await this.historialRepository.findOne({
+      where: { placa },
+      relations: ['evaluaciones']
+    });
+    
+    if (!historial) {
+      return { evaluaciones: [] };
+    }
+    
+    // Ordenar evaluaciones por fecha (más reciente primero)
+    historial.evaluaciones.sort((a, b) => 
+      new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
+    );
+    
+    return historial;
+  }
+
   async update(id: number, updateHistorialDto: UpdateHistorialDto) {
     return `This action updates a #${id} historial`;
   }

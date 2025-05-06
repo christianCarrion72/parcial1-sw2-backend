@@ -22,6 +22,11 @@ export class HistorialController {
     return this.historialService.findOne(id);
   }
 
+  @Get('placa/:placa')
+  findByPlaca(@Param('placa') placa: string) {
+    return this.historialService.findByPlaca(placa);
+  }
+
   /*@Patch(':id')
   update(@Param('id') id: number, @Body() updateHistorialDto: UpdateHistorialDto) {
     return this.historialService.update(id, updateHistorialDto);
