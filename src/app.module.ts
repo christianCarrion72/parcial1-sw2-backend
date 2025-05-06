@@ -32,6 +32,12 @@ import { Historial } from './historial/entities/historial.entity';
       database: process.env.DB_DATABASE,
       entities: [Vehiculo,Evaluacion,DanoFisico,CostoReparacion,FallaMecanica,Archivo, Historial],
       synchronize: true,
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false
+        }
+      }
     }),
     VehiculoModule,
     EvaluacionModule,
